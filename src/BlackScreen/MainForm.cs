@@ -136,7 +136,9 @@ internal sealed class MainForm : Form
         if (m.Msg == 0x0312 && hotkey != null && m.WParam == hotkey.Id)
         {
             // Do not activate while the user is editing a shortcut in settings.
-            if (!(Visible && hotkeyInput.ContainsFocus) && session == null) BeginInvoke((Action)ActivateBlackout);
+            if (Visible && hotkeyInput.ContainsFocus)
+            { hotkeyInput.Text = hotkey.Shortcut.ToString(); status.Text = "点击保存后快捷键生效。"; }
+            else if (session == null) BeginInvoke((Action)ActivateBlackout);
             return;
         }
         base.WndProc(ref m);

@@ -3,6 +3,8 @@ using System.Drawing.Imaging;
 using BlackScreen;
 using Shortcut = BlackScreen.Core.Shortcut;
 
+namespace BlackScreen.Windows.Tests;
+
 internal static class Program
 {
     private static int passed;
