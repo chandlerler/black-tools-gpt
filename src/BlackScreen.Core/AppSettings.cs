@@ -1,10 +1,10 @@
 using System.Text.Json;
 namespace BlackScreen.Core;
 
-public sealed record AppSettings(string UnlockCode = "zcz", int SleepMinutes = 30)
+public sealed record AppSettings(string UnlockCode = "zcz", int SleepMinutes = 30, string Hotkey = "Ctrl + Alt + B")
 {
     public static bool ValidCode(string? code) => code is { Length: >= 1 and <= 32 } && code.All(c => c is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9');
-    public bool IsValid => ValidCode(UnlockCode) && SleepMinutes is >= 0 and <= 1440;
+    public bool IsValid => ValidCode(UnlockCode) && SleepMinutes is >= 0 and <= 1440 && Shortcut.TryParse(Hotkey, out _);
     public static AppSettings Load(string path)
     {
         if (!File.Exists(path)) return new();

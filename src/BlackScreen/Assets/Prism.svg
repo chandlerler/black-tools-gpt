@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<defs>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#92b7c5" stop-opacity=".22"/><stop offset=".5" stop-color="#04141d"/><stop offset="1" stop-color="#7dabb8" stop-opacity=".3"/></linearGradient>
+  <linearGradient id="light"><stop stop-color="white" stop-opacity=".95"/><stop offset="1" stop-color="#c0e5ef" stop-opacity=".3"/></linearGradient>
+</defs>
+<rect width="256" height="256" rx="28" fill="#080b0b"/>
+<path d="M128 39 L48 207 L208 207 Z" fill="url(#glass)" stroke="#537a87" stroke-width="7" stroke-linejoin="round"/>
+<path d="M128 39 L48 207 L208 207 Z" fill="none" stroke="#bdd4d9" stroke-width="2.3"/>
+<path d="M0 162 L91 117" fill="none" stroke="white" stroke-width="3.2"/>
+<path d="M91 117 L151 87 L169 125 Z" fill="url(#light)"/>
+<path d="M151 87 L256 108 L256 117 L154 93 Z" fill="#f1414c"/>
+<path d="M154 93 L256 117 L256 126 L157 100 Z" fill="#ff9133"/>
+<path d="M157 100 L256 126 L256 135 L160 106 Z" fill="#ffe341"/>
+<path d="M160 106 L256 135 L256 144 L163 112 Z" fill="#4bc078"/>
+<path d="M163 112 L256 144 L256 153 L166 119 Z" fill="#32a9de"/>
+<path d="M166 119 L256 153 L256 162 L169 125 Z" fill="#8260bd"/>
+</svg>

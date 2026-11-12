@@ -3,8 +3,12 @@
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
-    <AssemblyName>BlackScreen</AssemblyName><Product>幕黑</Product><Version>1.0.0</Version>
+    <AssemblyName>BlackScreen</AssemblyName><Product>幕黑</Product><Version>1.1.0</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/Prism.ico</ApplicationIcon>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../BlackScreen.Core/BlackScreen.Core.csproj" /></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets/Prism.ico" LogicalName="BlackScreen.Prism.ico" /></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="BlackScreen.Windows.Tests" /></ItemGroup>
 </Project>

@@ -2,6 +2,9 @@ using System.Runtime.InteropServices;
 namespace BlackScreen;
 internal static class Native
 {
+    [DllImport("user32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)] internal static extern bool RegisterHotKey(nint window, int id, uint modifiers, uint key);
+    [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] internal static extern bool UnregisterHotKey(nint window, int id);
+    [DllImport("user32.dll")] internal static extern short GetAsyncKeyState(int key);
     internal delegate nint KeyboardProc(int code, nint message, nint data);
     [DllImport("user32.dll", SetLastError = true)] internal static extern nint SetWindowsHookEx(int id, KeyboardProc callback, nint module, uint thread);
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] internal static extern bool UnhookWindowsHookEx(nint hook);

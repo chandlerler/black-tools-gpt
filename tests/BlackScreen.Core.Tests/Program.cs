@@ -26,4 +26,29 @@ try {
  bool rejected=false; try { AppSettings.Load(path); } catch(InvalidDataException) { rejected=true; }
  Check(rejected,"corrupt settings rejected");
 } finally { if (Directory.Exists(Path.GetDirectoryName(path))) Directory.Delete(Path.GetDirectoryName(path)!,true); }
+
+Check(Shortcut.TryParse("alt+CTRL+b", out var shortcut) && shortcut.ToString() == "Ctrl + Alt + B", "hotkey normalizes order and case");
+Check(Shortcut.TryParse("Ctrl+Shift+F12", out _) && Shortcut.TryParse("Alt+9", out _) && Shortcut.TryParse("Ctrl+F24", out _), "supported shortcut combinations");
+foreach (var invalid in new[] { "B", "Shift+B", "Ctrl+Ctrl+B", "Ctrl+", "Win+B", "Ctrl+Alt+Shift+F12", "Alt+F25", "Alt+Space", "Ctrl++B" })
+    Check(!Shortcut.TryParse(invalid, out _), "reject shortcut: " + invalid);
+Check(!new AppSettings("zcz", 30, "invalid").IsValid, "invalid hotkey rejected by settings");
+var legacyPath = Path.Combine(Path.GetTempPath(), "muhei-legacy-" + Guid.NewGuid(), "settings.json");
+try
+{
+    Directory.CreateDirectory(Path.GetDirectoryName(legacyPath)!);
+    File.WriteAllText(legacyPath, "{\"UnlockCode\":\"old123\",\"SleepMinutes\":45}");
+    var migrated = AppSettings.Load(legacyPath);
+    Check(migrated == new AppSettings("old123", 45, "Ctrl + Alt + B"), "v1 settings retain code/time and receive default shortcut");
+    var custom = new AppSettings("zcz", 0, "Ctrl + Shift + F8");
+    custom.Save(legacyPath);
+    Check(AppSettings.Load(legacyPath) == custom, "custom hotkey persists");
+}
+finally { Directory.Delete(Path.GetDirectoryName(legacyPath)!, true); }
+var beginning = PrismAnimation.At(0);
+Check(beginning.Incoming == 0 && beginning.Spectrum == 0, "animation starts without rays");
+Check(PrismAnimation.At(.5).Incoming > 0 && PrismAnimation.At(.5).Spectrum == 0, "white light arrives before rainbow");
+Check(PrismAnimation.At(1.7).Spectrum == 1 && PrismAnimation.At(1.7).Opacity == 1, "rainbow reaches full extension");
+Check(PrismAnimation.At(2.5).Opacity is > 0 and < 1, "scene fades during final second");
+Check(PrismAnimation.At(3).Opacity == 0 && PrismAnimation.At(100).Opacity == 0, "pure black at three seconds and thereafter");
+Check(PrismAnimation.BlackElapsed(TimeSpan.FromSeconds(2)) == TimeSpan.Zero && PrismAnimation.BlackElapsed(TimeSpan.FromSeconds(63)) == TimeSpan.FromMinutes(1), "sleep countdown excludes intro animation");
 Console.WriteLine($"{passed} tests passed.");

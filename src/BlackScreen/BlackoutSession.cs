@@ -15,6 +15,7 @@ internal sealed class BlackoutSession : IDisposable
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 500 };
     private readonly List<Form> covers = [];
     private readonly HashSet<int> pressed = [];
+    private readonly HashSet<int> activationKeys = [];
     private readonly Native.KeyboardProc callback;
     private nint hook;
     private bool disposed, ending, cursorHidden;
@@ -28,22 +29,24 @@ internal sealed class BlackoutSession : IDisposable
     }
     public void Start()
     {
+        // Forward releases of keys pressed before activation so other apps do not retain stuck modifiers.
+        for (int key = 8; key <= 255; key++)
+            if ((Native.GetAsyncKeyState(key) & 0x8000) != 0) { activationKeys.Add(key); pressed.Add(key); }
         hook = Native.SetWindowsHookEx(13, callback, Native.GetModuleHandle(null), 0);
         if (hook == 0) throw new Win32Exception(Marshal.GetLastWin32Error(), "无法启用键盘监听。");
         // Keep the machine awake until the explicitly configured deadline.
         if (Native.SetThreadExecutionState(0x80000003) == 0) throw new Win32Exception("无法设置电源保持状态。");
         SystemEvents.DisplaySettingsChanged += DisplaysChanged;
+        clock.Start();
         RebuildCovers(); Cursor.Hide(); cursorHidden = true;
-        clock.Start(); timer.Start();
+        timer.Start();
     }
     private void RebuildCovers()
     {
         var old = covers.ToArray(); covers.Clear();
         foreach (var screen in Screen.AllScreens)
         {
-            var cover = new Form { FormBorderStyle = FormBorderStyle.None, StartPosition = FormStartPosition.Manual,
-                Bounds = screen.Bounds, BackColor = Color.Black, TopMost = true, ShowInTaskbar = false,
-                AutoScaleMode = AutoScaleMode.None, Text = "幕黑" };
+            var cover = new BlackoutForm(screen.Bounds, clock);
             cover.FormClosing += (_, e) => { if (!disposed) e.Cancel = true; };
             covers.Add(cover); cover.Show();
         }
@@ -60,7 +63,11 @@ internal sealed class BlackoutSession : IDisposable
         int key = Marshal.ReadInt32(data);
         bool down = message == 0x100 || message == 0x104;
         bool up = message == 0x101 || message == 0x105;
-        if (up) pressed.Remove(key);
+        if (up)
+        {
+            pressed.Remove(key);
+            if (activationKeys.Remove(key)) return Native.CallNextHookEx(hook, code, message, data);
+        }
         if (down && pressed.Add(key))
         {
             bool ctrl = pressed.Contains(0xA2) || pressed.Contains(0xA3);
@@ -77,7 +84,7 @@ internal sealed class BlackoutSession : IDisposable
     }
     private void Tick(object? sender, EventArgs e)
     {
-        if (disposed || ending || !deadline.TryFire(clock.Elapsed)) return;
+        if (disposed || ending || !deadline.TryFire(PrismAnimation.BlackElapsed(clock.Elapsed))) return;
         timer.Stop();
         Native.SetThreadExecutionState(0x80000000);
         // This call returns after resume; overlays remain until the unlock code is entered.
